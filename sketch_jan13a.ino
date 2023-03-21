@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Cirque Corp. Restrictions apply. See: www.cirque.com/sw-license
+// Like half of this code is unused
 
 #include <SPI.h>
 #include <Mouse.h>
@@ -74,8 +74,6 @@ typedef struct {
   bool hovering;
 } absData_t;
 
-void foo(absData_t d) {}
-
 absData_t touchData;
 
 //const uint16_t ZONESCALE = 256;
@@ -101,7 +99,7 @@ int xDiff, yDiff;
 float xDiffAcc, yDiffAcc;
 //int lastXDiff, lastYDiff;
 float xMotion, yMotion;
-int touchCycles = 1;
+int touchCycles = 0;
 
 #define LENGTH 5
 
@@ -240,9 +238,30 @@ int getMomentum(int diff) {
 // For right hand
 int s_btn = 4, l_btn = 3, r_btn = 6, m_btn = 5;
 
+bool rightMode() {
+  return s_btn == 4;
+}
+
 void switchSides() {
-  s_btn, m_btn = m_btn, s_btn;
-  l_btn, r_btn = r_btn, l_btn;
+  //s_btn, m_btn = m_btn, s_btn;
+  //l_btn, r_btn = r_btn, l_btn;
+  if (rightMode()) {
+    s_btn = 5;
+    l_btn = 6;
+    r_btn = 3;
+    m_btn = 4;
+    Mouse.move(100, 0);
+    delay(500);
+    Mouse.move(-100, 0);
+  } else {
+    s_btn = 4;
+    l_btn = 3;
+    r_btn = 6;
+    m_btn = 5;
+    Mouse.move(-100, 0);
+    delay(500);
+    Mouse.move(100, 0);
+  }
 }
 
 void flash() {
@@ -253,20 +272,19 @@ void flash() {
 
 // setup() gets called once at power-up, sets up serial debug output and Cirque's Pinnacle ASIC.
 void setup() {
-  Serial.begin(115200);
-  //while(!Serial);
-  delay(750);
-
-  // These functions are required for use with thick overlays (curved)
-
-  
-
   pinMode(LED_BUILTIN, OUTPUT);
 
   pinMode(l_btn, INPUT_PULLUP);
   pinMode(r_btn, INPUT_PULLUP);
   pinMode(m_btn, INPUT_PULLUP);
   pinMode(s_btn, INPUT_PULLUP);
+  
+  Serial.begin(115200);
+  //while(!Serial);
+  flash();
+
+  // These functions are required for use with thick overlays (curved)
+  //switchSides();
 
   Pinnacle_Init();
 
@@ -282,7 +300,7 @@ void setup() {
 }
 
 int scrollCount = 0;
-#define SCROLL_CLICK_MAX_GAP 30
+#define SCROLL_CLICK_MAX_GAP 50
 int scrollTimeDiff = SCROLL_CLICK_MAX_GAP;
 bool alreadyIncremented = false;
 
